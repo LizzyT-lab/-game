@@ -2,127 +2,659 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>성심여고 LizzyT 능률VOCA DAY 06</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LizzyT's Voca Game - 통합본</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Roboto:wght@400;700&display=swap');
-        @page { size: A4; margin: 0; }
-        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: #fff; color: #333; }
-        .page { width: 210mm; min-height: 297mm; padding: 12mm 15mm; margin: 0 auto; box-sizing: border-box; page-break-after: always; }
+        :root {
+            --primary: #6b58a6;
+            --success: #4caf50;
+            --error: #f44336;
+            --bg: #f3f0ff;
+        }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-box { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 35px rgba(107, 88, 166, 0.2); width: 100%; max-width: 700px; text-align: center; position: relative; min-height: 550px; display: flex; flex-direction: column; }
         
-        .header-container { margin-bottom: 20px; }
-        .header-top { display: flex; align-items: flex-end; justify-content: space-between; }
-        .day-label { font-size: 34px; font-weight: 700; color: #b0b0b0; margin-right: 20px; font-family: 'Roboto', sans-serif; }
-        .title-main { font-size: 19px; font-weight: 700; color: #333; display: block; margin-bottom: 3px; }
-        .title-sub { font-size: 13px; color: #4a3b82; font-weight: 500; display: block; }
-        .info-field { font-size: 14px; color: #555; padding-bottom: 3px; }
-        .purple-line { height: 3.5px; background-color: #6b58a6; margin: 8px 0; border: none; }
-        .instruction { font-size: 12.5px; color: #444; margin-bottom: 15px; }
+        .progress-bar { position: absolute; top: 0; left: 0; height: 8px; background: var(--primary); transition: width 0.3s; width: 0%; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; color: var(--primary); font-weight: bold; font-size: 1.1rem; }
+        
+        #question { font-size: 1.6rem; font-weight: 600; line-height: 1.6; margin: 40px 0; color: #222; word-break: keep-all; }
+        #question u { text-decoration: underline; text-underline-offset: 10px; color: var(--primary); font-size: 1.8rem; }
 
-        .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; }
-        .item-card { border-bottom: 1px solid #f2f2f2; padding: 10px 0; break-inside: avoid; }
-        .item-num { display: inline-block; background-color: #efeff5; color: #777; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 9px; margin-bottom: 5px; }
-        .sentence { font-size: 13.5px; line-height: 1.5; margin-bottom: 7px; color: #222; word-break: keep-all; }
-        .blank { display: inline-block; border-bottom: 1px solid #333; min-width: 90px; height: 16px; margin: 0 2px; }
-        .input-box { display: flex; gap: 8px; margin-bottom: 6px; }
-        .input-slot { font-size: 10.5px; color: #999; border: 1px solid #eee; padding: 2.5px 8px; border-radius: 4px; flex: 1; background: #fafafa; }
-        .translation { font-size: 11.5px; color: #777; background: #fbfbfb; padding: 4px 9px; border-left: 2px solid #6b58a6; line-height: 1.4; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: auto; }
+        button { padding: 20px; font-size: 1.1rem; border: 2px solid #eee; border-radius: 15px; background: white; cursor: pointer; transition: all 0.2s; font-family: inherit; font-weight: bold; color: #555; }
+        button:hover:not(:disabled) { border-color: var(--primary); background: #fdfcff; transform: translateY(-3px); }
+        button.correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        button.wrong { background: var(--error) !important; color: white; border-color: var(--error); }
+        
+        .hidden { display: none !important; }
+        
+        #start-screen, #result-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 30px; box-sizing: border-box; border-radius: 25px; }
+        
+        /* DAY 선택 버튼 스타일 */
+        .day-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; width: 100%; }
+        .day-btn { padding: 10px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .day-btn:hover { background: white; color: var(--primary); }
+        
+        .btn-main { background: white; color: var(--primary); border: none; padding: 18px 60px; border-radius: 50px; font-size: 1.3rem; font-weight: bold; margin-top: 30px; cursor: pointer; transition: 0.3s; }
 
-        .answer-page { padding: 15mm; width: 210mm; margin: 0 auto; box-sizing: border-box; }
-        .answer-title { font-size: 22px; color: #6b58a6; border-bottom: 2px solid #6b58a6; padding-bottom: 8px; margin-bottom: 15px; font-weight: bold; }
-        .answer-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .answer-table th, .answer-table td { border: 1px solid #eee; padding: 6px; text-align: left; }
-        .answer-table th { background: #f8f8fa; color: #6b58a6; }
-        .ans-word { font-weight: bold; color: #333; font-size: 12px; }
-
-        @media print { body { background: none; -webkit-print-color-adjust: exact; } }
+        #review-container { text-align: left; width: 100%; max-height: 250px; overflow-y: auto; background: rgba(255,255,255,0.9); color: #333; padding: 15px; border-radius: 15px; margin-top: 20px; }
+        .review-item { border-bottom: 1px solid #ddd; padding: 8px 0; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<div class="page">
-    <div class="header-container">
-        <div class="header-top">
-            <div class="header-left">
-                <div class="day-label">DAY 06</div>
-                <div class="title-box">
-                    <span class="title-main">능률VOCA 어원편 고등 (표제어) Test</span>
-                    <span class="title-sub">성심여고만을 위한 LizzyT의 특별 맞춤 자료</span>
-                </div>
-            </div>
-            <div class="info-field">이름: ____________________</div>
+<div id="game-box">
+    <div class="progress-bar" id="progress"></div>
+    
+    <div id="start-screen">
+        <h1 style="font-size: 2.5rem; margin-bottom: 5px;">LizzyT's Voca Game</h1>
+        <p style="font-size: 1.2rem; font-weight: 500;">가은이를 위한 단어 격파! 🥊</p>
+        <p style="margin-bottom: 10px;">학습할 DAY를 선택해줘!</p>
+        
+        <div class="day-grid">
+            <script>
+                for(let i=1; i<=15; i++) {
+                    document.write(`<button class="day-btn" onclick="prepareGame(${i})">DAY ${i < 10 ? '0'+i : i}</button>`);
+                }
+            </script>
         </div>
-        <div class="purple-line"></div>
-        <div class="instruction">빈칸에 알맞은 단어를 쓰고 예문에 사용된 해당 단어의 품사와 뜻을 쓰세요.</div>
+        <p id="selected-msg" style="margin-top:20px; font-weight: bold; color: #ffeb3b;"></p>
+        <button id="start-go-btn" class="btn-main hidden" onclick="startGame()">격파 시작!</button>
     </div>
 
-    <div class="item-grid">
-        <div class="item-card"><span class="item-num">01</span><div class="sentence">They are not interested in trying to appear or feel <span class="blank"></span> to others.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">그들은 다른 사람보다 우월해 보이거나 우월하다고 느끼는데 관심이 없다.</div></div>
-        <div class="item-card"><span class="item-num">02</span><div class="sentence">The hotel offers <span class="blank"></span> views of the lake.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">그 호텔은 호수의 멋진 광경을 보여준다.</div></div>
-        <div class="item-card"><span class="item-num">03</span><div class="sentence">A <span class="blank"></span> resemblance doesn't necessarily mean you are part of the family.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">외관상의 유사함이 꼭 당신이 가족의 일원이라는 것을 뜻하지는 않는다.</div></div>
-        <div class="item-card"><span class="item-num">04</span><div class="sentence"><span class="blank"></span> knowledge</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">피상적인 지식</div></div>
-        <div class="item-card"><span class="item-num">05</span><div class="sentence">Mirrors and other smooth, shiny <span class="blank"></span> reflect light.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">거울이나 다른 매끄럽고 반짝이는 표면은 빛을 반사한다.</div></div>
-        <div class="item-card"><span class="item-num">06</span><div class="sentence">A <span class="blank"></span> nation makes its own laws.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">주권을 가진 나라는 스스로 법을 만든다.</div></div>
-        <div class="item-card"><span class="item-num">07</span><div class="sentence">Citizens must <span class="blank"></span> the laws of their country.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">국민들은 자국의 법을 지지해야 한다.</div></div>
-        <div class="item-card"><span class="item-num">08</span><div class="sentence">The books were placed <span class="blank"></span> on the shelf.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">책들은 선반 위에 똑바로 꽂혀 있었다.</div></div>
-        <div class="item-card"><span class="item-num">09</span><div class="sentence">She was <span class="blank"></span> about her flight being delayed.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">그녀는 비행기가 지연되는 것에 기분이 상했다.</div></div>
-        <div class="item-card"><span class="item-num">10</span><div class="sentence">An <span class="blank"></span> stomach is another common symptom of caffeine overload.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">복통은 카페인 과다 섭취의 또 다른 흔한 증상이다.</div></div>
-        <div class="item-card"><span class="item-num">11</span><div class="sentence">A <span class="blank"></span> floated to the surface of the water.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">잠수함이 물의 표면으로 떠올랐다.</div></div>
-        <div class="item-card"><span class="item-num">12</span><div class="sentence">Thousands of children are <span class="blank"></span> from hunger and disease at this moment.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">지금 이 순간에도 수천 명의 아이들이 배고픔과 질병으로 고통받고 있다.</div></div>
-        <div class="item-card"><span class="item-num">13</span><div class="sentence">I <span class="blank"></span> finishing your homework before going out.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">외출하기 전에 너의 숙제를 끝내는 것이 좋겠다.</div></div>
-        <div class="item-card"><span class="item-num">14</span><div class="sentence">These findings <span class="blank"></span> that pride responses are innate.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">이러한 연구 결과는 자부심 반응이 선천적이라는 것을 시사한다.</div></div>
-        <div class="item-card"><span class="item-num">15</span><div class="sentence">We are kindly asking you to <span class="blank"></span> us by coming to our fundraising concert.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">저희의 기금 마련 콘서트에 참석하셔서 저희를 지지해 주시기를 정중히 부탁드립니다.</div></div>
-        <div class="item-card"><span class="item-num">16</span><div class="sentence">My mother worked two jobs to <span class="blank"></span> us.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">어머니께서는 우리를 부양하기 위해 두 가지 일을 하셨다.</div></div>
-        <div class="item-card"><span class="item-num">17</span><div class="sentence">A wooden beam acts as a <span class="blank"></span> for the ceiling.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">나무 기둥은 천장을 받치는 지지대 역할을 한다.</div></div>
-        <div class="item-card"><span class="item-num">18</span><div class="sentence">The new government quickly <span class="blank"></span> the uprising.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">새 정부는 반란을 빠르게 진압했다.</div></div>
-        <div class="item-card"><span class="item-num">19</span><div class="sentence">You may <span class="blank"></span> your feelings at the office and release them when you get home.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">직장에서 안 좋은 하루를 보냈다면, 당신은 사무실에서는 감정을 억누르고 집에 돌아와서 감정을 표출할지도 모른다.</div></div>
-        <div class="item-card"><span class="item-num">20</span><div class="sentence"><span class="blank"></span> are used to kill harmful bacteria.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">항생제는 해로운 세균을 죽이기 위해 사용된다.</div></div>
-        <div class="item-card"><span class="item-num">21</span><div class="sentence"><span class="blank"></span> help the body fight off infections.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">항체는 몸이 감염과 싸우는 데 도움을 준다.</div></div>
-        <div class="item-card"><span class="item-num">22</span><div class="sentence">Mammals live in varied habitats, from Arctic tundra to <span class="blank"></span> pack ice.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">포유류는 북극의 툰드라부터 남극의 빙산에 이르기까지 살 수 있다.</div></div>
-        <div class="item-card"><span class="item-num">23</span><div class="sentence">The management is seeking ways to <span class="blank"></span> customers’ needs.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">경영진은 고객의 수요를 예측하는 방법들을 찾고 있다.</div></div>
-        <div class="item-card"><span class="item-num">24</span><div class="sentence">The shop sells <span class="blank"></span> like old clocks and furniture.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">그 가게는 오래된 시계나 가구 같은 골동품을 판다.</div></div>
-        <div class="item-card"><span class="item-num">25</span><div class="sentence">Giraffes had an <span class="blank"></span> in feeding on the leaves of tall trees.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">기린처럼 긴 목을 가진 동물들은 높은 나무의 잎을 먹기에 유리했다.</div></div>
-        <div class="item-card"><span class="item-num">26</span><div class="sentence">The descendants honor their <span class="blank"></span> at a memorial ceremony.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">후손들은 새해 첫날 차례에서 그들의 조상들을 기린다.</div></div>
-        <div class="item-card"><span class="item-num">27</span><div class="sentence">The drama is based on <span class="blank"></span> Korean history.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">그 드라마는 한국 고대사를 바탕으로 한다.</div></div>
-        <div class="item-card"><span class="item-num">28</span><div class="sentence">IT has <span class="blank"></span> dramatically since the 1960s.</div><div class="input-box"><div class="input-slot">품사:</div><div class="input-slot">뜻:</div></div><div class="translation">IT 기술은 1960년대부터 급격하게 진보해왔다.</div></div>
+    <div id="result-screen" class="hidden">
+        <h1 id="result-title" style="font-size: 3rem; margin-bottom: 5px;"></h1>
+        <p id="final-score-text" style="font-size: 1.6rem; font-weight: bold;"></p>
+        <p id="result-msg" style="font-size: 1.1rem;"></p>
+        <div id="review-container">
+            <h3 style="margin-top:0">📝 오답 노트</h3>
+            <div id="review-list"></div>
+        </div>
+        <button class="btn-main" onclick="location.reload()">메인으로</button>
+    </div>
+
+    <div class="stats">
+        <div id="count-display">준비 중...</div>
+        <div id="score-display">Score: 0</div>
+    </div>
+    
+    <div id="question-box">
+        <div id="question">DAY를 선택해주세요.</div>
+    </div>
+
+    <div class="options" id="options">
+        <button onclick="checkAnswer(0)"></button>
+        <button onclick="checkAnswer(1)"></button>
+        <button onclick="checkAnswer(2)"></button>
+        <button onclick="checkAnswer(3)"></button>
     </div>
 </div>
 
-<div class="answer-page">
-    <div class="answer-title">Answer Key - DAY 06</div>
-    <table class="answer-table">
-        <thead><tr><th>번호</th><th>단어 (정답)</th><th>품사</th><th>뜻</th></tr></thead>
-        <tbody>
-            <tr><td>01</td><td class="ans-word">superior</td><td>형용사</td><td>우월한, 우수한</td></tr>
-            <tr><td>02</td><td class="ans-word">superb</td><td>형용사</td><td>멋진, 최고의</td></tr>
-            <tr><td>03</td><td class="ans-word">superficial</td><td>형용사</td><td>외관상의, 피상적인</td></tr>
-            <tr><td>04</td><td class="ans-word">superficial</td><td>형용사</td><td>피상적인</td></tr>
-            <tr><td>05</td><td class="ans-word">surfaces</td><td>명사</td><td>표면</td></tr>
-            <tr><td>06</td><td class="ans-word">sovereign</td><td>형용사</td><td>주권을 가진</td></tr>
-            <tr><td>07</td><td class="ans-word">uphold</td><td>동사</td><td>지지하다, 유지하다</td></tr>
-            <tr><td>08</td><td class="ans-word">upright</td><td>부사/형용사</td><td>똑바로, 수직의</td></tr>
-            <tr><td>09</td><td class="ans-word">upset</td><td>형용사</td><td>기분이 상한, 화난</td></tr>
-            <tr><td>10</td><td class="ans-word">upset</td><td>명사/형용사</td><td>배탈, 복통, 뒤엎다</td></tr>
-            <tr><td>11</td><td class="ans-word">submarine</td><td>명사</td><td>잠수함</td></tr>
-            <tr><td>12</td><td class="ans-word">suffering</td><td>동사</td><td>고통받다</td></tr>
-            <tr><td>13</td><td class="ans-word">suggest</td><td>동사</td><td>제안하다, ~하는 게 좋겠다</td></tr>
-            <tr><td>14</td><td class="ans-word">suggest</td><td>동사</td><td>시사하다, 암시하다</td></tr>
-            <tr><td>15</td><td class="ans-word">support</td><td>동사</td><td>지지하다, 후원하다</td></tr>
-            <tr><td>16</td><td class="ans-word">support</td><td>동사</td><td>부양하다</td></tr>
-            <tr><td>17</td><td class="ans-word">support</td><td>명사</td><td>지지대, 받침</td></tr>
-            <tr><td>18</td><td class="ans-word">suppressed</td><td>동사</td><td>진압하다</td></tr>
-            <tr><td>19</td><td class="ans-word">suppress</td><td>동사</td><td>억누르다, 참다</td></tr>
-            <tr><td>20</td><td class="ans-word">Antibiotics</td><td>명사</td><td>항생제</td></tr>
-            <tr><td>21</td><td class="ans-word">Antibodies</td><td>명사</td><td>항체</td></tr>
-            <tr><td>22</td><td class="ans-word">Antarctic</td><td>형용사</td><td>남극의</td></tr>
-            <tr><td>23</td><td class="ans-word">anticipate</td><td>동사</td><td>예측하다, 기대하다</td></tr>
-            <tr><td>24</td><td class="ans-word">antiques</td><td>명사</td><td>골동품</td></tr>
-            <tr><td>25</td><td class="ans-word">advantage</td><td>명사</td><td>유리함, 이점</td></tr>
-            <tr><td>26</td><td class="ans-word">ancestors</td><td>명사</td><td>조상</td></tr>
-            <tr><td>27</td><td class="ans-word">ancient</td><td>형용사</td><td>고대의</td></tr>
-            <tr><td>28</td><td class="ans-word">advanced</td><td>동사/형용사</td><td>진보하다, 상급의</td></tr>
-        </tbody>
-    </table>
-</div>
+<script>
+    const allData = {
+        1: [
+            { q: "Some progressive schools are testing different systems to speed up their educational <u>progress</u>.", a: "발전/진보", d: ["제안", "예측", "조심"] },
+            { q: "He <u>proposed</u> starting a drama club at school.", a: "제안했다", d: ["생산했다", "예측했다", "보호했다"] },
+            { q: "The factory <u>produces</u> first-class cheese.", a: "생산하다", d: ["구매하다", "보호하다", "예측하다"] },
+            { q: "Just remember to bring a hat to <u>protect</u> yourself from the sun.", a: "보호하다", d: ["예측하다", "조심하다", "설명하다"] },
+            { q: "According to her <u>profile</u>, her real name was Samantha.", a: "인물 소개/프로필", d: ["개요", "결과", "통찰력"] },
+            { q: "Online tickets must be <u>purchased</u> 24 hours prior to the event.", a: "구매하다", d: ["생산하다", "제안하다", "조사하다"] },
+            { q: "Experts <u>predict</u> that gas prices will continue to rise.", a: "예측하다", d: ["보호하다", "설명하다", "제안하다"] },
+            { q: "Always take <u>precautions</u> when using dangerous equipment.", a: "조심/예방 조치", d: ["통찰력", "투자", "결과"] },
+            { q: "A <u>premature</u> birth.", a: "조산(早産)의", d: ["성급한", "뛰어난", "내재된"] },
+            { q: "<u>Premature</u> decisions are the leading cause of decision failure.", a: "성급한", d: ["조산의", "최대한의", "사실에 입각한"] },
+            { q: "Have you seen the <u>preview</u> for that movie?", a: "예고편", d: ["개요", "결과", "인물 소개"] },
+            { q: "Her monthly <u>income</u> is less than $1,000.", a: "수입/소득", d: ["섭취", "투자", "수익"] },
+            { q: "Caffeine <u>intake</u>.", a: "섭취(량)", d: ["수입", "감염", "발발"] },
+            { q: "The weakened immune system leads to <u>infection</u>.", a: "감염", d: ["발발", "섭취", "통찰력"] },
+            { q: "The <u>inherent</u> complexity of English.", a: "내재된", d: ["외적인", "뛰어난", "성급한"] },
+            { q: "His writing shows deep <u>insight</u> into relations among people.", a: "통찰력", d: ["개요", "결과", "표출 방법"] },
+            { q: "We should attract foreign <u>investment</u>.", a: "투자", d: ["수입", "수익", "조약"] },
+            { q: "Cheryl got down on her hands and knees to <u>investigate</u> the tunnel.", a: "조사하다", d: ["설명하다", "예측하다", "제안하다"] },
+            { q: "This experiment <u>illustrates</u> the problems created by pollution.", a: "설명하다", d: ["조사하다", "묘사하다", "예측하다"] },
+            { q: "What was the <u>outcome</u> of the presidential election?", a: "결과", d: ["개요", "발발", "원인"] },
+            { q: "Let me give you an <u>outline</u> of the plan.", a: "개요", d: ["결과", "통찰력", "예고편"] },
+            { q: "The student had an <u>outstanding</u> talent for mathematics.", a: "뛰어난", d: ["내재된", "성급한", "조산의"] },
+            { q: "At the <u>outbreak</u> of World War I, he was serving in the army.", a: "발발", d: ["결과", "표출 방법", "감염"] },
+            { q: "Many people say writing a journal is a good <u>outlet</u> for their emotions.", a: "표출 방법", d: ["결과", "통로", "발전"] },
+            { q: "She was so shocked that she couldn't <u>utter</u> a single word.", a: "(말을) 내다", d: ["완전한", "설명하다", "거절하다"] },
+            { q: "All drugs should be treated with the <u>utmost</u> care.", a: "최대한의", d: ["성급한", "뛰어난", "내재된"] }
+        ],
+    2: [
+        { q: "I <u>recall</u> that he was a very tall gentleman.", a: "기억해 내다", d: ["소환하다", "취소하다", "재현하다"] },
+        { q: "Very few of us have a complete photo <u>record</u> of our life.", a: "기록", d: ["음반", "경력", "조사"] },
+        { q: "If you have a funny thought, <u>record</u> it as an audio note.", a: "기록하다/녹음하다", d: ["기억하다", "상징하다", "신고하다"] },
+        { q: "Have you <u>recovered</u> from your cold yet?", a: "회복하다", d: ["되찾다", "발달하다", "제거하다"] },
+        { q: "Less than ten percent of plastic waste has been <u>recycled</u>.", a: "재활용하다", d: ["교체하다", "구성하다", "창출하다"] },
+        { q: "I did some <u>research</u> on rare plants.", a: "연구/조사", d: ["통계", "개요", "발표"] },
+        { q: "He <u>replaced</u> the meat in his diet with vegetables.", a: "대체하다", d: ["제 자리에 놓다", "재현하다", "포함하다"] },
+        { q: "If both lights are on, <u>replace</u> the batteries.", a: "교체하다", d: ["대신하다", "제 자리에 놓다", "회복하다"] },
+        { q: "Salmon return to their birthplace to <u>reproduce</u>.", a: "생식(번식)하다", d: ["재현하다", "복제하다", "기록하다"] },
+        { q: "No one has been able to perfectly <u>reproduce</u> the Koryo pottery.", a: "재현(복제)하다", d: ["번식하다", "조사하다", "설명하다"] },
+        { q: "The investigation <u>revealed</u> new evidence.", a: "드러내다/밝히다", d: ["폭로하다", "예측하다", "제안하다"] },
+        { q: "Know what would happen to your firm's total <u>revenue</u>.", a: "수익/세입", d: ["수입", "투자", "비용"] },
+        { q: "Breaks are necessary to <u>revive</u> your energy levels.", a: "회복하다/활기를 되찾다", d: ["부활시키다", "제거하다", "은퇴하다"] },
+        { q: "Water flow to <u>remove</u> fish waste.", a: "제거하다/치우다", d: ["분리하다", "후퇴하다", "무시하다"] },
+        { q: "Professor Peterson plans to <u>retire</u> at the end of the year.", a: "은퇴하다/퇴직하다", d: ["후퇴하다", "물러나다", "그만두다"] },
+        { q: "The true author of the book <u>remains</u> unknown.", a: "여전히 ~인 상태이다", d: ["남다", "유적", "머무르다"] },
+        { q: "The representatives don't always <u>represent</u> the desires of the people.", a: "대변하다/대표하다", d: ["나타내다", "상징하다", "묘사하다"] },
+        { q: "Red lines on the map <u>represent</u> railways.", a: "나타내다/상징하다", d: ["대표하다", "대변하다", "입증하다"] },
+        { q: "Thinking about endangered animals <u>depresses</u> me.", a: "우울하게 하다", d: ["불경기로 만들다", "억누르다", "하락시키다"] },
+        { q: "The flight <u>departs</u> from Gimpo Airport at 2 o'clock.", a: "출발하다", d: ["벗어나다", "떠나다", "후퇴하다"] },
+        { q: "The organization is looking for ways to <u>derive</u> more profit.", a: "이끌어내다/얻다", d: ["유래하다", "추론하다", "창출하다"] },
+        { q: "Small quantities of poison were <u>detected</u> in his blood.", a: "발견하다/감지하다", d: ["조사하다", "드러내다", "추적하다"] },
+        { q: "You can <u>detach</u> the speaker from the TV.", a: "분리하다/떼어내다", d: ["파견하다", "제거하다", "대체하다"] },
+        { q: "Knowledge and understanding are <u>developed</u> through thinking.", a: "발전하다/발달하다", d: ["개발하다", "현상하다", "나타내다"] },
+        { q: "Americans <u>declared</u> they were free in 1776.", a: "선언하다/공표하다", d: ["단언하다", "신고하다", "주장하다"] },
+        { q: "Do you have anything to <u>declare</u> at customs?", a: "신고하다", d: ["선언하다", "공표하다", "묘사하다"] },
+        { q: "Let's <u>debate</u> the issues when the meeting starts.", a: "토론/논쟁(하다)", d: ["제안", "설명", "추측"] },
+        { q: "The experiment <u>demonstrated</u> that heat causes expansion.", a: "입증하다/증명하다", d: ["시위하다", "설명하다", "드러내다"] },
+        { q: "Antonio Salieri is <u>depicted</u> as a non-great composer.", a: "묘사하다/그리다", d: ["표현하다", "나타내다", "조사하다"] }
+    ],
+    3: [
+        { q: "He wiped the sweat off his <u>forehead</u> with a towel.", a: "이마", d: ["조상", "개요", "결과"] },
+        { q: "We learned how inventive our <u>forefathers</u> were.", a: "조상/선조", d: ["후손", "전문가", "외향적인 사람"] },
+        { q: "What he had <u>foreseen</u> in a dream came true.", a: "예견하다/예언하다", d: ["간과하다", "극복하다", "설명하다"] },
+        { q: "She is the <u>foremost</u> expert in this field.", a: "가장 중요한/최고의", d: ["이전의", "비범한", "근본적인"] },
+        { q: "Now a <u>former</u> champion, she was thinking of retiring.", a: "전(前)의", d: ["최고의", "특별한", "외부의"] },
+        { q: "I received a thank-you letter from my <u>former</u> student Emily.", a: "이전의/예전의", d: ["가장 중요한", "내재된", "뛰어난"] },
+        { q: "To <u>overcome</u> the disadvantage of their size, small animals developed weapons.", a: "극복하다/이겨내다", d: ["추월하다", "떠맡다", "겪다"] },
+        { q: "It's easy to <u>overlook</u> the invisible energy usage.", a: "간과하다/못 보고 넘어가다", d: ["내려다보다", "예견하다", "조사하다"] },
+        { q: "The new café <u>overlooked</u> the park.", a: "내려다보다", d: ["간과하다", "겹치다", "넘치다"] },
+        { q: "Have you ever traveled <u>overseas</u>?", a: "해외로/외국으로", d: ["머리 위에", "전반적으로", "외부로"] },
+        { q: "The <u>overall</u> characteristics of soil determine minerals.", a: "전반적인/전체의", d: ["근본적인", "최고의", "특별한"] },
+        { q: "I saw something fly <u>overhead</u>.", a: "머리 위에/하늘 높이", d: ["해외로", "전반적으로", "외부의"] },
+        { q: "In 2016, the smartphone <u>overtook</u> the laptop.", a: "추월하다/능가하다", d: ["겹치다", "극복하다", "넘치다"] },
+        { q: "Spread the documents out so that none of them <u>overlap</u>.", a: "겹치다/중복되다", d: ["추월하다", "넘치다", "내려다보다"] },
+        { q: "The drain in the sink isn't working, don't let it <u>overflow</u>.", a: "넘치다/범람하다", d: ["겹치다", "추월하다", "내려다보다"] },
+        { q: "There are two rooms to accommodate an <u>overflow</u> of people.", a: "초과 인원/넘침", d: ["전반적인 특성", "학부생", "외계 생명체"] },
+        { q: "It's <u>extraordinary</u> to get this much snow in this part.", a: "이상한/비범한", d: ["특별한", "일반적인", "전반적인"] },
+        { q: "They now recognized her <u>extraordinary</u> gift and passion.", a: "특별한/비범한", d: ["이상한", "이전의", "외부의"] },
+        { q: "The school has many <u>extracurricular</u> activities.", a: "과외의/정규 교과 이외의", d: ["외계의", "근본적인", "전반적인"] },
+        { q: "Scientists are searching for <u>extraterrestrial</u> life.", a: "외계의/지구 밖의", d: ["과외의", "외부의", "전반적인"] },
+        { q: "Are you an <u>extrovert</u> or an introvert?", a: "외향적인 사람", d: ["조상", "대학생", "전문가"] },
+        { q: "Most mice die from <u>external</u> causes, such as disease.", a: "외부의/밖의", d: ["내재된", "전반적인", "근본적인"] },
+        { q: "To <u>undergo</u> surgery.", a: "(수술 등을) 받다/겪다", d: ["떠맡다", "극복하다", "추월하다"] },
+        { q: "To <u>undertake</u> that kind of work is a great responsibility.", a: "(책임을) 떠맡다/착수하다", d: ["겪다", "넘치다", "간과하다"] },
+        { q: "After completing their <u>undergraduate</u> studies, students apply to graduate school.", a: "대학생/학부생의", d: ["조상의", "이전의", "근본적인"] },
+        { q: "My teacher taught me the <u>underlying</u> principles of nature.", a: "근본적인/기초가 되는", d: ["전반적인", "최고의", "특별한"] }
+    ],
+    4: [
+        { q: "I majored in <u>international</u> trade.", a: "국제적인/국가 간의", d: ["명확한", "상호 작용의", "외부의"] },
+        { q: "I'll <u>interpret</u> the speech for you.", a: "통역하다", d: ["이해하다", "설명하다", "과장하다"] },
+        { q: "I <u>interpreted</u> his silence as a refusal.", a: "이해하다/파악하다", d: ["통역하다", "폭로하다", "참견하다"] },
+        { q: "Learning is much more efficient when done at regular <u>intervals</u>.", a: "간격/거리", d: ["대화", "실수", "지름"] },
+        { q: "Sean <u>interfered</u> in their business as if it was his own.", a: "간섭하다/참견하다", d: ["방해하다", "이동하다", "조사하다"] },
+        { q: "The noise from outside <u>interfered</u> with my ability to concentrate.", a: "방해하다", d: ["간섭하다", "조사하다", "이식하다"] },
+        { q: "Good <u>interaction</u> between teachers and students is essential.", a: "상호 작용", d: ["전달", "배기가스", "개요"] },
+        { q: "How long does it take to <u>transfer</u> money internationally?", a: "송금하다", d: ["이동하다", "전달하다", "변형시키다"] },
+        { q: "She's going to be <u>transferred</u> to the marketing department.", a: "이동하다/전근 가다", d: ["송금하다", "이식하다", "설명하다"] },
+        { q: "The oral traditions of knowledge <u>transfer</u> began to fade.", a: "전달/이동", d: ["상호 작용", "배기가스", "지름"] },
+        { q: "Ways to <u>transform</u> solar power into electricity.", a: "변형시키다/바꾸다", d: ["확장하다", "탐구하다", "증발하다"] },
+        { q: "I <u>transplanted</u> the flowers to a pot.", a: "옮겨 심다/이식하다", d: ["변형시키다", "노출시키다", "교환하다"] },
+        { q: "Organ <u>transplants</u> can save lives.", a: "이식", d: ["전달", "배기가스", "지름"] },
+        { q: "The balloon <u>expanded</u> as we filled it with air.", a: "부풀다/팽창하다", d: ["확장하다", "증발하다", "도망치다"] },
+        { q: "Our plan to <u>expand</u> the business ended in failure.", a: "확장하다/넓히다", d: ["부풀다", "탐구하다", "설명하다"] },
+        { q: "Humans have yet to fully <u>explore</u> the depths of the ocean.", a: "탐구하다/탐사하다", d: ["확장하다", "설명하다", "조사하다"] },
+        { q: "Would you please <u>explain</u> why you are late today?", a: "설명하다", d: ["통역하다", "명확한", "과장하다"] },
+        { q: "She gave me <u>explicit</u> directions on how to do the work.", a: "명확한/노골적인", d: ["국제적인", "전반적인", "내재된"] },
+        { q: "Car <u>exhaust</u> emission standards.", a: "배기가스/배기 장치", d: ["상호 작용", "이식", "전달"] },
+        { q: "It is harmful to <u>expose</u> yourself to the sun for too long.", a: "노출시키다/드러내다", d: ["공개하다", "폭로하다", "검사하다"] },
+        { q: "The secrets behind a trick were <u>exposed</u> to the public.", a: "공개하다/폭로하다", d: ["노출시키다", "조사하다", "교환하다"] },
+        { q: "The scientist <u>examined</u> the data carefully.", a: "조사하다/검사하다", d: ["탐구하다", "설명하다", "과장하다"] },
+        { q: "The report seems to <u>exaggerate</u> the water shortage problem.", a: "과장하다", d: ["설명하다", "이해하다", "폭로하다"] },
+        { q: "The bride and groom <u>exchanged</u> rings.", a: "교환하다/주고받다", d: ["환율", "대체하다", "신고하다"] },
+        { q: "What's the current won-dollar <u>exchange</u> rate?", a: "환율/교환", d: ["전달", "지름", "송금"] },
+        { q: "Bats can <u>escape</u> from danger much faster.", a: "도망치다/탈출하다", d: ["증발하다", "추월하다", "방해하다"] },
+        { q: "When seawater <u>evaporates</u>, it leaves behind salt.", a: "증발하다", d: ["부풀다", "팽창하다", "도망치다"] },
+        { q: "The <u>dialogue</u> between the two characters.", a: "대화", d: ["간격", "개요", "결과"] },
+        { q: "This circle is five centimeters in <u>diameter</u>.", a: "지름", d: ["간격", "거리", "전달"] },
+        { q: "It was a big <u>mistake</u> to forget the test date.", a: "실수", d: ["조심", "예측", "조사"] }
+    ],
+    5: [
+        { q: "He <u>became</u> depressed because of his failure.", a: "~이 되다", d: ["어울리다", "발생하다", "남다"] },
+        { q: "This will <u>enable</u> us to achieve our goal.", a: "가능하게 하다", d: ["강조하다", "분석하다", "따르다"] },
+        { q: "The <u>entire</u> area was full of trees.", a: "전체의", d: ["내부의", "심오한", "비범한"] },
+        { q: "She tried to <u>emphasize</u> the importance of the project.", a: "강조하다", d: ["해결하다", "설명하다", "억누르다"] },
+        { q: "The noise will <u>encounter</u> the baby.", a: "마주치다/괴롭히다", d: ["분석하다", "개봉하다", "증명하다"] },
+        { q: "We should <u>analyze</u> the results of the survey.", a: "분석하다", d: ["협력하다", "순응하다", "해결하다"] },
+        { q: "The <u>earnings</u> of the company was very high.", a: "수익/소득", d: ["투자", "설명", "압력"] },
+        { q: "The team worked in <u>collaboration</u> with each other.", a: "협력", d: ["대화", "강의", "여정"] },
+        { q: "You must <u>conform</u> to the rules of the school.", a: "따르다/순응하다", d: ["해결하다", "증명하다", "분석하다"] },
+        { q: "The <u>conversation</u> was very successful.", a: "대화", d: ["설명", "강의", "협력"] },
+        { q: "She has a <u>profound</u> interest in music.", a: "깊은/심오한", d: ["전체의", "현대적인", "외관의"] },
+        { q: "The <u>exterior</u> of the building was very modern.", a: "외관/외부", d: ["내부", "전체", "풍경"] },
+        { q: "The movie will <u>release</u> next week.", a: "개봉하다", d: ["석방하다", "발표하다", "해결하다"] },
+        { q: "We need to <u>resolve</u> the problem as soon as possible.", a: "해결하다/결심하다", d: ["강조하다", "분석하다", "억누르다"] },
+        { q: "The <u>explanation</u> was very clear.", a: "설명", d: ["개요", "결과", "강의"] },
+        { q: "She tried to <u>suppress</u> her feelings.", a: "억누르다/진압하다", d: ["해결하다", "표현하다", "강조하다"] },
+        { q: "The <u>scenery</u> was very beautiful.", a: "풍경", d: ["외관", "동료", "압력"] },
+        { q: "The <u>colleague</u> was very kind to us.", a: "동료", d: ["상사", "조상", "외향적인 사람"] },
+        { q: "He was <u>exalted</u> for his bravery.", a: "칭송받는/고귀한", d: ["우울한", "평범한", "내재된"] },
+        { q: "The <u>lecture</u> was very informative.", a: "강의", d: ["토론", "대화", "설명"] },
+        { q: "The <u>pressure</u> was very high.", a: "압력/압박", d: ["수익", "소리", "날씨"] },
+        { q: "The <u>journey</u> was very long.", a: "여정/여행", d: ["결과", "개요", "통로"] },
+        { q: "He tried to <u>demonstrate</u> his innocence.", a: "증명하다/시연하다", d: ["시위하다", "묘사하다", "숨기다"] },
+        { q: "The <u>sound</u> was very loud.", a: "소리", d: ["날씨", "구멍", "압력"] },
+        { q: "The <u>weather</u> was very hot.", a: "날씨", d: ["풍경", "외관", "수익"] },
+        { q: "The <u>opening</u> was very small.", a: "구멍/통로/시작", d: ["마감", "결과", "설명"] }
+    ],
+    6: [
+        { q: "I <u>apologized</u> for the mistake.", a: "사과하다", d: ["정당화하다", "입양하다", "조사하다"] },
+        { q: "His <u>apology</u> was very sincere.", a: "사과(명사)", d: ["철학", "에피소드", "실험"] },
+        { q: "Can you <u>justify</u> your decision?", a: "정당화하다", d: ["사과하다", "입양하다", "분석하다"] },
+        { q: "The <u>philosophy</u> of the company is very clear.", a: "철학", d: ["개요", "결과", "사과"] },
+        { q: "The <u>episode</u> was very interesting.", a: "에피소드/사건", d: ["소설", "철학", "실험"] },
+        { q: "He is an <u>adopted</u> child.", a: "입양된", d: ["정통한", "내재된", "전문적인"] },
+        { q: "The <u>fur</u> of the cat is very soft.", a: "털/모피", d: ["소설", "목소리", "방"] },
+        { q: "The <u>novel</u> was very long.", a: "소설", d: ["철학", "에피소드", "실험"] },
+        { q: "He is very <u>expert</u> in his work.", a: "정통한/전문적인", d: ["입양된", "내재된", "평범한"] },
+        { q: "The <u>voice</u> was very beautiful.", a: "목소리", d: ["털", "소리", "폭발"] },
+        { q: "I have <u>access</u> to the library.", a: "접근/이용 권한", d: ["폭발", "실험", "철학"] },
+        { q: "The <u>blast</u> was very loud.", a: "폭발/강한 바람", d: ["접근", "목소리", "소리"] },
+        { q: "The <u>experiment</u> was very successful.", a: "실험", d: ["철학", "에피소드", "결과"] },
+        { q: "The <u>price</u> was very high.", a: "가격", d: ["수익", "압력", "가치"] },
+        { q: "The <u>water</u> was very cold.", a: "물", d: ["날씨", "방", "털"] },
+        { q: "The <u>room</u> was very small.", a: "방/공간", d: ["공원", "도서관", "구멍"] }
+    ],
+    7: [
+        { q: "Think about the roller skate. It <u>combines</u> two existing things: wheels and shoes.", a: "결합하다/섞다", d: ["구성하다", "연결하다", "타협하다"] },
+        { q: "He keeps good[bad] <u>company</u>.", a: "친구/일행", d: ["회사", "함께 있음", "조합"] },
+        { q: "Which <u>company</u> do you work for?", a: "회사", d: ["친구", "일행", "단체"] },
+        { q: "He enjoys her <u>company</u>.", a: "함께 있음", d: ["회사", "친구", "동료"] },
+        { q: "We spent much time <u>complaining</u> about a lack of time.", a: "불평하다/하소연하다", d: ["순응하다", "직면하다", "일치하다"] },
+        { q: "The report is based on data <u>compiled</u> by 100 researchers.", a: "수집하다/편집하다", d: ["구성하다", "압축하다", "확인하다"] },
+        { q: "Foams feel soft because they are easily <u>compressed</u>.", a: "압축하다/요약하다", d: ["결합하다", "구성하다", "분리하다"] },
+        { q: "Water is <u>composed</u> of hydrogen and oxygen.", a: "구성하다", d: ["작곡하다", "수집하다", "일치하다"] },
+        { q: "She likes to write lyrics and <u>compose</u> music.", a: "작곡하다", d: ["구성하다", "수집하다", "열중시키다"] },
+        { q: "After an hour of discussion, they reached a <u>compromise</u>.", a: "타협/합의", d: ["결과", "개요", "확인"] },
+        { q: "Don't forget to <u>confirm</u> your flight reservation.", a: "확인하다/확정하다", d: ["시인하다", "인정하다", "순응하다"] },
+        { q: "Look twice in order to <u>confirm</u> what you have just seen.", a: "확인하다", d: ["확정하다", "인정하다", "부합하다"] },
+        { q: "The politician refused to <u>confirm</u> the rumor.", a: "시인하다/인정하다", d: ["확인하다", "확정하다", "지키다"] },
+        { q: "The airport is directly <u>connected</u> to the subway line.", a: "연결되다", d: ["부합하다", "일치하다", "해당하다"] },
+        { q: "One must <u>conform</u> to proper etiquette in public places.", a: "지키다/순응하다", d: ["확인하다", "직면하다", "일치하다"] },
+        { q: "When you're <u>confronted</u> with difficulties, find solutions.", a: "직면하다/마주하다", d: ["순응하다", "타협하다", "결합하다"] },
+        { q: "The broad lines on the map <u>correspond</u> to roads.", a: "해당하다/부합하다", d: ["일치하다", "연결되다", "나타내다"] },
+        { q: "The problem is that what she says doesn't <u>correspond</u> with what she does.", a: "일치하다", d: ["해당하다", "부합하다", "연결되다"] },
+        { q: "The old house <u>collapsed</u> during the windstorm.", a: "붕괴되다/무너지다", d: ["실패하다", "망하다", "수축하다"] },
+        { q: "He was forced to leave school after his father's business <u>collapsed</u>.", a: "실패하다/망하다", d: ["붕괴되다", "무너지다", "중단되다"] },
+        { q: "<u>Symphonies</u> are usually composed of three or four movements.", a: "교향곡", d: ["합창곡", "작곡가", "악기"] },
+        { q: "People often assume that <u>synthetic</u> food ingredients are more harmful.", a: "합성의/인조의", d: ["천연의", "인위적인", "추상적인"] },
+        { q: "The average tree <u>absorbs</u> only 48 pounds of CO2 a year.", a: "흡수하다/빨아들이다", d: ["열중시키다", "방출하다", "소비하다"] },
+        { q: "Time passes quickly when you are <u>absorbed</u> in your work.", a: "열중하다/몰두하다", d: ["흡수하다", "제외되다", "분리되다"] },
+        { q: "Snow is <u>abnormal</u> for this time of year.", a: "비정상적인", d: ["평범한", "일반적인", "비현실적인"] },
+        { q: "There was <u>absolute</u> silence after his comment.", a: "완전한/절대적인", d: ["상대적인", "터무니없는", "비정상적인"] },
+        { q: "That's an unrealistic and <u>absurd</u> idea.", a: "터무니없는/불합리한", d: ["추상적인", "비정상적인", "안정된"] },
+        { q: "Food waste should be <u>separated</u> from other waste.", a: "분리하다/떼어놓다", d: ["결합하다", "구성하다", "압축하다"] },
+        { q: "You're lucky to have such a <u>secure</u> job.", a: "안정된/확실한", d: ["위험한", "임시의", "고귀한"] },
+        { q: "What I went through <u>securing</u> it.", a: "얻다/확보하다", d: ["확인하다", "고정하다", "보호하다"] },
+        { q: "He had hopes of being <u>selected</u> for the national team.", a: "선발하다/선택하다", d: ["제외하다", "임명하다", "대체하다"] },
+        { q: "Once racial and ethical <u>segregation</u> is eliminated.", a: "분리/격리", d: ["통합", "차별", "개요"] }
+    ],
+    8: [
+        { q: "Muscles in our faces <u>enable</u> us to move them into lots of positions.", a: "가능하게 하다", d: ["강화하다", "확장하다", "집행하다"] },
+        { q: "The police often have to use force to <u>enforce</u> the law.", a: "집행하다/시행하다", d: ["보장하다", "강화하다", "발생하다"] },
+        { q: "Adding some pepper would really <u>enhance</u> the flavor of this soup.", a: "높이다/강화하다", d: ["풍요롭게 하다", "확장하다", "보장하다"] },
+        { q: "We believe that allowing people to live with pets <u>enriches</u> their lives.", a: "풍요롭게 하다", d: ["가능하게 하다", "강화하다", "확장하다"] },
+        { q: "The company plans to <u>enlarge</u> its headquarters next year.", a: "확장하다/크게 하다", d: ["집행하다", "보장하다", "강화하다"] },
+        { q: "All customers are <u>entitled</u> to receive a full refund.", a: "권리를 주다", d: ["~라는 제목을 붙이다", "보장받다", "직면하다"] },
+        { q: "He wrote a brief introduction to economics <u>entitled</u> The Economic Organization.", a: "~라는 제목을 붙이다", d: ["권리를 주다", "보장하다", "설명하다"] },
+        { q: "Acquiring skills does not <u>ensure</u> success.", a: "보장하다/확실하게 하다", d: ["집행하다", "강화하다", "풍요롭게 하다"] },
+        { q: "The documents you requested are <u>enclosed</u>.", a: "동봉하다/에워싸다", d: ["직면하다", "설득하다", "발생하다"] },
+        { q: "Consider the feeling of <u>encountering</u> a diary you wrote many years ago.", a: "마주치다/직면하다", d: ["동봉하다", "참여하다", "수용하다"] },
+        { q: "His daughter loves to <u>engage</u> in conversation with new people.", a: "참여하다/종사하다", d: ["설득하다", "포옹하다", "고집하다"] },
+        { q: "He <u>embraced</u> me like I was a brother.", a: "안다/포옹하다", d: ["받아들이다", "직면하다", "참여하다"] },
+        { q: "People with a growth mindset <u>embrace</u> challenges.", a: "받아들이다/수용하다", d: ["포옹하다", "참여하다", "고집하다"] },
+        { q: "Though I'm far from <u>perfect</u>, I always aim for perfection.", a: "완벽한", d: ["완성하다", "영구적인", "지속적인"] },
+        { q: "They still need more data to <u>perfect</u> their decision.", a: "완성하다/완벽하게 하다", d: ["완벽한", "보장하다", "집행하다"] },
+        { q: "A <u>permanent</u> tooth.", a: "영구적인/불변의", d: ["정규직의", "임시의", "완벽한"] },
+        { q: "I'm looking for a <u>permanent</u> job, not a temporary one.", a: "정규직의/상시의", d: ["영구적인", "임시의", "비슷한"] },
+        { q: "He <u>persisted</u> in his ways till the day he died.", a: "고집하다/지속하다", d: ["지속되다", "인내하다", "설득하다"] },
+        { q: "You have to see a doctor if the symptoms <u>persist</u>.", a: "지속되다", d: ["고집하다", "발생하다", "사라지다"] },
+        { q: "To succeed, you must <u>persevere</u> until the end.", a: "인내하다/노력하다", d: ["고집하다", "설득하다", "직면하다"] },
+        { q: "He <u>persuaded</u> his parents to let him study abroad.", a: "설득하다", d: ["납득시키다", "고집하다", "보장하다"] },
+        { q: "How can I <u>persuade</u> you that I am innocent?", a: "납득시키다/설득하다", d: ["설득하다(행동하게 함)", "증명하다", "묘사하다"] },
+        { q: "What's your <u>perspective</u> on that issue?", a: "견해/관점", d: ["전망", "명성", "개요"] },
+        { q: "There were already many people <u>aboard</u> the train.", a: "(배, 기차 등에) 타고", d: ["해외로", "비슷하게", "나란히"] },
+        { q: "Some national treasures were taken <u>abroad</u>.", a: "해외로/외국으로", d: ["기차에 타고", "사라진", "널리"] },
+        { q: "They don't look <u>alike</u> even though they are sisters.", a: "닮은/비슷한", d: ["해외로", "기차에 타고", "발생하다"] },
+        { q: "Problems often <u>arise</u> if an exotic species is introduced.", a: "발생하다/일어나다", d: ["일깨우다", "닮다", "지속되다"] },
+        { q: "Her behavior <u>aroused</u> the suspicions of the police.", a: "불러일으키다/자극하다", d: ["발생하다", "직면하다", "조사하다"] },
+        { q: "Teenagers are often <u>ashamed</u> of their flaws.", a: "부끄러워하는", d: ["깜짝 놀란", "비슷한", "완벽한"] },
+        { q: "He was <u>amazed</u> by how smart his dog was.", a: "깜짝 놀라게 하다", d: ["부끄러워하는", "설득당한", "열중한"] },
+        { q: "We cannot <u>afford</u> a new car this year.", a: "~할 여유가 있다", d: ["보장하다", "제공하다", "구매하다"] },
+        { q: "A water molecule is made up of two hydrogen <u>atoms</u>.", a: "원자", d: ["분자", "물질", "특성"] }
+    ],
+    9: [
+        { q: "The actual result of the research was <u>contrary</u> to what he expected.", a: "반대의", d: ["대조적인", "논쟁적인", "거만한"] },
+        { q: "His views are the <u>contrary</u> of mine.", a: "반대되는 것", d: ["대조", "논란", "가짜"] },
+        { q: "In this book, the writer <u>contrasts</u> Europe with America.", a: "대조하다", d: ["반대하다", "설명하다", "임명하다"] },
+        { q: "A heated <u>controversy</u> over educational policies.", a: "논쟁/논란", d: ["대조", "결과", "접근 방식"] },
+        { q: "Our army attacked first, and then they <u>counterattacked</u>.", a: "반격하다", d: ["철회하다", "저항하다", "다가오다"] },
+        { q: "Someone passed me a <u>counterfeit</u> $20 bill.", a: "위조의/가짜의", d: ["반대의", "진짜의", "익숙해진"] },
+        { q: "A meeting between the Korean president and his Japanese <u>counterpart</u>.", a: "상대방/대응 관계에 있는 사람", d: ["자서전", "동료", "사인"] },
+        { q: "I’ll <u>withdraw</u> my complaint if you admit you were wrong.", a: "(고소 등을) 철회하다/취소하다", d: ["인출하다", "보류하다", "저항하다"] },
+        { q: "A woman wanted to <u>withdraw</u> all her money.", a: "(돈을) 인출하다", d: ["철회하다", "축적하다", "차지하다"] },
+        { q: "The company is <u>withholding</u> the workers’ pay.", a: "보류하다/억제하다", d: ["인출하다", "철회하다", "견디다"] },
+        { q: "They couldn’t <u>withstand</u> the enemy attack.", a: "견디다/저항하다", d: ["반격하다", "철회하다", "다가오다"] },
+        { q: "<u>Adjust</u> the volume level by moving the joystick.", a: "조절하다/맞추다", d: ["설명하다", "수반하다", "축적하다"] },
+        { q: "Children under ten must be <u>accompanied</u> by an adult.", a: "동행하다", d: ["수반하다", "익숙해지다", "기다리다"] },
+        { q: "Adventure is always <u>accompanied</u> by risk.", a: "수반하다", d: ["동행하다", "발생하다", "조절하다"] },
+        { q: "You’ll soon be <u>accustomed</u> to the new environment.", a: "익숙해진", d: ["반대하는", "버려진", "거만한"] },
+        { q: "I’d like to open a new <u>account</u>.", a: "계좌", d: ["설명", "원인", "근거"] },
+        { q: "Can you <u>account</u> for your behavior today?", a: "설명하다 (account for)", d: ["원인이 되다", "차지하다", "정당화하다"] },
+        { q: "Global warming may <u>account</u> for the rise in ocean temperatures.", a: "원인이 되다 (account for)", d: ["설명하다", "차지하다", "축적하다"] },
+        { q: "Subscriptions <u>account</u> for almost 90 percent of sales.", a: "차지하다 (account for)", d: ["설명하다", "원인이 되다", "임명하다"] },
+        { q: "How did he <u>accumulate</u> that much money?", a: "모으다/축적하다", d: ["인출하다", "조절하다", "임명하다"] },
+        { q: "Later in his life, he was <u>appointed</u> the U.S. Ambassador.", a: "임명하다/정하다", d: ["다가오다", "기다리다", "설명하다"] },
+        { q: "Winter must be <u>approaching</u>.", a: "다가오다", d: ["기다리다", "발생하다", "동행하다"] },
+        { q: "His innovative <u>approach</u> to art inspired many artists.", a: "접근 방식", d: ["대조", "결과", "논쟁"] },
+        { q: "He eagerly <u>awaited</u> the weekly arrival of the magazine.", a: "기다리다", d: ["다가오다", "동행하다", "임명하다"] },
+        { q: "The poor little kitten was <u>abandoned</u>.", a: "버려진", d: ["익숙해진", "위조된", "반대의"] },
+        { q: "I’ll never <u>abandon</u> my dreams.", a: "버리다/포기하다", d: ["철회하다", "축적하다", "견디다"] },
+        { q: "I can’t stand his <u>arrogant</u> attitude.", a: "거만한/오만한", d: ["익숙해진", "반대의", "진짜의"] },
+        { q: "He bought a <u>telescope</u> to gaze at the stars.", a: "망원경", d: ["전보", "자동차", "자서전"] },
+        { q: "We don’t send <u>telegraphs</u> to communicate anymore.", a: "전보", d: ["망원경", "사인", "자동차"] },
+        { q: "Many employees now <u>telecommute</u> at least one day a week.", a: "재택근무하다", d: ["송금하다", "조절하다", "동행하다"] },
+        { q: "Can I get your <u>autograph</u>?", a: "사인", d: ["자서전", "자동차", "전보"] },
+        { q: "Have you ever read Benjamin Franklin’s <u>autobiography</u>?", a: "자서전", d: ["개요", "인물 소개", "사인"] },
+        { q: "The <u>automobile</u> industry has led the country’s growth.", a: "자동차", d: ["망원경", "전보", "수익"] }
+    ],
+    10: [
+        { q: "He knows a lot about <u>geography</u>, especially mountains and rivers.", a: "지리/지리학", d: ["지질학", "기하학", "지형"] },
+        { q: "Because I am interested in rocks, I decided to major in <u>geology</u>.", a: "지질학", d: ["지리학", "기하학", "고고학"] },
+        { q: "You need <u>geometry</u> to measure the distance to nearby stars.", a: "기하학", d: ["지리학", "지질학", "천문학"] },
+        { q: "There were <u>multiple</u> witnesses to the accident.", a: "다수의/다양한", d: ["유일한", "사소한", "비정상적인"] },
+        { q: "The museum uses <u>multimedia</u> equipment to help visitors.", a: "멀티미디어", d: ["시청각의", "통신매체", "다중의"] },
+        { q: "I saw a <u>multitude</u> of stars in the sky last night.", a: "다수/군중", d: ["소수", "우주", "일부분"] },
+        { q: "I especially liked her closing <u>monologue</u>.", a: "독백", d: ["대화", "개요", "결과"] },
+        { q: "Soil is forced to be the perfect environment for <u>monoculture</u> growth.", a: "단일 재배", d: ["다각 경영", "이중 국적", "집중 재배"] },
+        { q: "The labor <u>union</u> held a vote to decide strike.", a: "조합/결합", d: ["학생회", "연합", "단체"] },
+        { q: "The student <u>union</u> is planning a festival.", a: "학생회", d: ["노동 조합", "유럽 연합", "동아리"] },
+        { q: "The European <u>Union</u>.", a: "연합", d: ["조합", "단위", "정부"] },
+        { q: "The artist has a <u>unique</u> painting style and story.", a: "독특한/유일한", d: ["보편적인", "일반적인", "공통의"] },
+        { q: "Each product has its own <u>unique</u> code number.", a: "고유의", d: ["유사한", "전체적인", "임시의"] },
+        { q: "Genghis Khan <u>unified</u> the Mongol tribes in 1206.", a: "통일된/하나가 된", d: ["통합하다", "분리하다", "지배하다"] },
+        { q: "One founder believed social media would <u>unite</u> us.", a: "통합하다/결합하다", d: ["분리하다", "구별하다", "조절하다"] },
+        { q: "A monetary <u>unit</u>.", a: "단위", d: ["교과서의 과", "병동", "체계"] },
+        { q: "We completed the first <u>unit</u> of our textbook today.", a: "(구성) 단위/과", d: ["단위", "부서", "개요"] },
+        { q: "An intensive care <u>unit</u> (ICU).", a: "(병원의) 병동/부서", d: ["단위", "구성 단위", "실험실"] },
+        { q: "Revealing even more secrets of the <u>universe</u>.", a: "우주/만물", d: ["은하", "지구", "공간"] },
+        { q: "Grandpa Joe stood proudly in a baseball <u>uniform</u>.", a: "제복/유니폼", d: ["균일한", "일정한", "변함없는"] },
+        { q: "Their decisions were not <u>uniform</u>.", a: "균일한/일정한", d: ["제복", "다양한", "독특한"] },
+        { q: "She is <u>bilingual</u> in English and Spanish.", a: "2개 국어를 구사하는", d: ["유창한", "외국어의", "내향적인"] },
+        { q: "<u>Balance</u> between work and leisure.", a: "균형", d: ["잔고", "조절", "비율"] },
+        { q: "The <u>balance</u> in your account is 1.4 million won.", a: "잔고/잔액", d: ["균형", "수익", "세입"] },
+        { q: "You need to <u>balance</u> your diet.", a: "균형을 맞추다", d: ["잔고를 확인하다", "조절하다", "보충하다"] },
+        { q: "They <u>duplicated</u> the key so both roommates could have one.", a: "복제하다/되풀이하다", d: ["수정하다", "제거하다", "분리하다"] },
+        { q: "This device serves a <u>dual</u> purpose.", a: "이중의/두 부분으로 된", d: ["고유한", "전반적인", "유일한"] },
+        { q: "She has <u>dual</u> citizenship.", a: "이중의", d: ["단독의", "합법적인", "외국의"] },
+        { q: "Moving in the <u>twilight</u>.", a: "황혼/여명", d: ["한낮", "암흑", "안개"] },
+        { q: "The <u>twilight</u> of life.", a: "황혼기/쇠퇴기", d: ["전성기", "성장기", "어린시절"] },
+        { q: "Sean <u>twisted</u> his ankle.", a: "비틀다/(발목을) 삐다", d: ["왜곡하다", "부러뜨리다", "지탱하다"] },
+        { q: "He always <u>twists</u> the facts.", a: "왜곡하다/비틀다", d: ["증명하다", "설명하다", "인정하다"] },
+        { q: "That big <u>triangle</u> of bright stars.", a: "삼각형", d: ["사각형", "원형", "다각형"] },
+        { q: "How many Native American <u>tribes</u> are there?", a: "부족/종족", d: ["국가", "조합", "군중"] },
+        { q: "With such a <u>trivial</u> demand.", a: "사소한/하찮은", d: ["중요한", "뛰어난", "명확한"] }
+    ],
+    11: [
+        { q: "The company <u>manufactures</u> electric vehicles.", a: "제조하다/생산하다", d: ["수입하다", "수송하다", "설명하다"] },
+        { q: "We need to improve our school's <u>facilities</u> for people with disabilities.", a: "시설/편의 시설", d: ["재능", "학부", "수익"] },
+        { q: "She has a great <u>facility</u> for playing the piano.", a: "재능/솜씨", d: ["시설", "도구", "기회"] },
+        { q: "The university has an excellent <u>faculty</u>.", a: "교수진/(대학의) 학부", d: ["시설", "수당", "결함"] },
+        { q: "Motivation is a key <u>factor</u> in sports training.", a: "요인/요소", d: ["수치", "이익", "사건"] },
+        { q: "The soldier gave a <u>factual</u> account of the war.", a: "사실에 입각한", d: ["허구의", "능숙한", "부족한"] },
+        { q: "Our advice had no <u>effect</u> on him.", a: "효과/영향", d: ["결함", "수익", "정세"] },
+        { q: "It is easier to <u>affect</u> children's behavior by being kind.", a: "영향을 미치다", d: ["제조하다", "자격을 얻다", "생각하다"] },
+        { q: "It is the company's responsibility to correct the <u>defect</u>.", a: "결함/결점", d: ["효과", "요인", "이익"] },
+        { q: "To improve efficiency, we need to develop more <u>efficient</u> technologies.", a: "능률적인/효율적인", d: ["부족한", "충분한", "사실에 입각한"] },
+        { q: "This diet is <u>deficient</u> in proteins and fat.", a: "부족한/결핍된", d: ["충분한", "능숙한", "효율적인"] },
+        { q: "One bad experience can be <u>sufficient</u> to last us a lifetime.", a: "충분한", d: ["부족한", "효율적인", "사실에 입각한"] },
+        { q: "Gloria is very <u>proficient</u> at her job now.", a: "능숙한/숙달된", d: ["결핍된", "사실에 입각한", "부족한"] },
+        { q: "Is that book <u>fiction</u> or nonfiction?", a: "소설/허구", d: ["사실", "수치", "사건"] },
+        { q: "The strong sales <u>figures</u> in the report surprised everyone.", a: "수치/숫자", d: ["인물", "모양", "수익"] },
+        { q: "Charlie Chaplin is a famous <u>figure</u> in American comedy.", a: "인물/모양", d: ["수치", "재능", "기회"] },
+        { q: "Alexander Graham Bell <u>figured</u> prominently in the development of education.", a: "중요한 역할을 하다/생각하다", d: ["제조하다", "영향을 미치다", "수송하다"] },
+        { q: "All <u>profits</u> will be donated to the local children's hospital.", a: "수익/이익", d: ["수당", "결함", "요인"] },
+        { q: "Regular exercise has many health <u>benefits</u>.", a: "이점/이익", d: ["수당", "수치", "사건"] },
+        { q: "Claim [receive] unemployment <u>benefits</u>.", a: "수당/혜택", d: ["수익", "요인", "결함"] },
+        { q: "Do you think he will <u>qualify</u> for the position?", a: "자격을 얻다/적임이다", d: ["만족시키다", "제조하다", "영향을 미치다"] },
+        { q: "Are you <u>satisfied</u> with your purchase?", a: "만족하는/충족된", d: ["부족한", "능숙한", "자격이 있는"] },
+        { q: "The ambassador and I discussed international <u>affairs</u>.", a: "사건/정세/일", d: ["수익", "기회", "효과"] },
+        { q: "The economic policy encourages <u>exports</u> and discourages imports.", a: "수출(하다)", d: ["수입하다", "수송하다", "제조하다"] },
+        { q: "If we <u>import</u> much more than we can export, economy will be in trouble.", a: "수입하다", d: ["수출하다", "수송하다", "생산하다"] },
+        { q: "<u>Import</u> restriction [control/regulation].", a: "수입(품)", d: ["수출", "수송", "이익"] },
+        { q: "They were able to <u>transport</u> many heavy goods.", a: "수송하다/운송하다", d: ["제조하다", "수입하다", "자격을 얻다"] },
+        { q: "I asked Jeff to bring his <u>portable</u> speaker.", a: "휴대용의", d: ["능률적인", "사실에 입각한", "능숙한"] },
+        { q: "Everyone is given the same <u>opportunity</u> to succeed.", a: "기회", d: ["사건", "이점", "수치"] }
+    ],
+    12: [
+        { q: "We never know what we're <u>capable</u> of until we try!", a: "~할 수 있는/유능한", d: ["포획한", "수락한", "인지한"] },
+        { q: "Humor can easily <u>capture</u> people's attention.", a: "(관심 등을) 사로잡다/포획하다", d: ["수락하다", "이해하다", "기만하다"] },
+        { q: "How many people will <u>participate</u> in this event?", a: "참가하다/참여하다", d: ["수락하다", "인지하다", "예상하다"] },
+        { q: "The school did not <u>accept</u> women at that time.", a: "수락하다/받아들이다", d: ["제외하다", "생각하다", "기만하다"] },
+        { q: "All the students are having trouble <u>except</u> for John.", a: "~을 제외하고", d: ["받아들이고", "인지하고", "포함하여"] },
+        { q: "It's hard to <u>conceive</u> of an idea that would solve the problem.", a: "(생각 등을) 품다/생각하다", d: ["인지하다", "기만하다", "수령하다"] },
+        { q: "I <u>perceived</u> a subtle change in her manner.", a: "인지하다/알아차리다", d: ["생각하다", "기만하다", "수령하다"] },
+        { q: "I'd rather be cheated by enemies than <u>deceived</u> by friends.", a: "속이다/기만하다", d: ["인지하다", "생각하다", "받아들이다"] },
+        { q: "I <u>received</u> an invitation to the wedding reception.", a: "받다/수령하다", d: ["속이다", "인지하다", "생각하다"] },
+        { q: "For most of the day, I was <u>occupied</u> with writing essays.", a: "(시간, 장소를) 차지하다/바쁜", d: ["설립된", "진술된", "설치된"] },
+        { q: "I know where you <u>stand</u>.", a: "(어떤 입장에) 있다/서다", d: ["참다", "견디다", "설립하다"] },
+        { q: "I can't <u>stand</u> this pain.", a: "참다/견디다", d: ["서다", "입장에 있다", "진술하다"] },
+        { q: "Jack always sets his <u>standards</u> too high.", a: "기준/표준", d: ["상태", "통계", "신분"] },
+        { q: "It is a <u>standard</u> style of portrait.", a: "일반적인/표준의", d: ["지속적인", "즉각적인", "영구적인"] },
+        { q: "The stateswoman will issue a statement about the serious <u>state</u> of our economy.", a: "상태/국가/주", d: ["통계", "동상", "재산"] },
+        { q: "As <u>stated</u> in the last newsletter.", a: "말하다/진술하다", d: ["설립하다", "차지하다", "설치하다"] },
+        { q: "Teams compile <u>statistics</u> to evaluate performance.", a: "통계(학)", d: ["기준", "상태", "조각상"] },
+        { q: "After his death, a <u>statue</u> of him was installed.", a: "동상/조각상", d: ["신분", "통계", "상태"] },
+        { q: "Legal immigrant <u>status</u>.", a: "신분/지위", d: ["진행 상황", "상태", "통계"] },
+        { q: "She inquired about the <u>status</u> of her application.", a: "진행 상황/상태", d: ["신분", "지위", "기준"] },
+        { q: "Our company was <u>established</u> in 1972.", a: "설립하다/확립하다", d: ["진술하다", "차지하다", "설치하다"] },
+        { q: "We needed to <u>establish</u> trust in order to trade.", a: "(신뢰 등을) 쌓다/확립하다", d: ["진술하다", "임명하다", "설치하다"] },
+        { q: "<u>Constant</u> worry can result in stomach problems.", a: "지속적인/끊임없는", d: ["즉각적인", "일반적인", "부동산의"] },
+        { q: "His <u>estate</u> is twice the size of mine.", a: "재산/자산", d: ["부동산", "지위", "기준"] },
+        { q: "As real <u>estate</u> prices rose, many sold their homes.", a: "부동산/토지", d: ["재산", "상태", "신분"] },
+        { q: "This is a clear <u>instance</u> of how technology changes education.", a: "사례/경우", d: ["순간", "장애", "실체"] },
+        { q: "The movie was an <u>instant</u> success.", a: "즉각적인/인스턴트의", d: ["순간", "지속적인", "일반적인"] },
+        { q: "Photographs can change people's hearts in an <u>instant</u>.", a: "순간/찰나", d: ["즉각적인", "사례", "실체"] },
+        { q: "We need to <u>install</u> an elevator.", a: "설치하다", d: ["임명하다", "설립하다", "진술하다"] },
+        { q: "She was <u>installed</u> as president of the university.", a: "임명하다/설치하다", d: ["확립하다", "차지하다", "진술하다"] },
+        { q: "He overcame the <u>obstacle</u> of blindness.", a: "장애(물)/방해", d: ["사례", "찰나", "실체"] },
+        { q: "Keep dangerous <u>substances</u> away from children.", a: "물질/실체", d: ["장애", "사례", "통계"] }
+    ],
+    13: [
+        { q: "The dog <u>assisted</u> the blind.", a: "돕다/원조하다", d: ["저항하다", "주장하다", "존재하다"] },
+        { q: "Happiness <u>consists</u> in being with people you love.", a: "~에 있다 (consist in)", d: ["~로 구성되다", "주장하다", "지속되다"] },
+        { q: "All natural sounds <u>consist</u> of constantly changing frequencies.", a: "~로 구성되다 (consist of)", d: ["~에 있다", "간주되다", "포함하다"] },
+        { q: "If we <u>exist</u> without love, our existence is meaningless.", a: "존재하다/살아가다", d: ["저항하다", "유지하다", "대체하다"] },
+        { q: "Some students <u>insist</u> on doing their homework while watching TV.", a: "고집하다/주장하다", d: ["요구하다", "회복시키다", "포함하다"] },
+        { q: "She <u>insisted</u> that he wear his new suit to the party.", a: "요구하다/주장하다", d: ["고집하다", "저항하다", "구성하다"] },
+        { q: "Athletes <u>resist</u> the temptation to win in a dishonest way.", a: "저항하다/반대하다", d: ["수용하다", "지속하다", "얻다"] },
+        { q: "Paying promptly will <u>restore</u> your membership to good standing.", a: "회복시키다/복구하다", d: ["대체하다", "유지하다", "체포하다"] },
+        { q: "The suspect's <u>arrest</u> was the result of a long investigation.", a: "체포", d: ["회복", "연구소", "미신"] },
+        { q: "Lewis made a costly mistake, which <u>cost</u> him his job.", a: "(비용·대가를) 치르게 하다", d: ["유지하다", "얻다", "돕다"] },
+        { q: "He has a <u>steady</u> job, and his wages are rising.", a: "안정된/꾸준한", d: ["비정상적인", "사소한", "이중의"] },
+        { q: "A political[educational] <u>system</u>.", a: "제도/체계", d: ["연구소", "대륙", "단위"] },
+        { q: "Forty pages <u>constitute</u> the book's section on World War II.", a: "구성하다", d: ["~로 간주되다", "대체하다", "지속하다"] },
+        { q: "Their actions <u>constitute</u> a clear threat.", a: "~로 간주되다", d: ["구성하다", "회복시키다", "포함하다"] },
+        { q: "The university established an <u>institute</u> for Korean studies.", a: "연구소/협회", d: ["제도", "대륙", "목적지"] },
+        { q: "We must <u>substitute</u> a new chair for the broken one.", a: "대체하다/바꾸다", d: ["대신하다", "유지하다", "구성하다"] },
+        { q: "Jake <u>substituted</u> for Lucy, who was on a business trip.", a: "대신하다", d: ["대체하다", "포함하다", "기억하다"] },
+        { q: "Carry travelers from one <u>destination</u> to another.", a: "목적지", d: ["대륙", "연구소", "제도"] },
+        { q: "According to <u>superstition</u>, Friday the 13th is unlucky.", a: "미신", d: ["진술", "통계", "개요"] },
+        { q: "The information <u>contained</u> in the letter really upset me.", a: "포함하다/담다", d: ["억제하다", "지속하다", "만족하다"] },
+        { q: "The children <u>entertained</u> us with their singing.", a: "즐겁게 하다", d: ["유지하다", "기억하다", "입다(부상)"] },
+        { q: "When did you <u>obtain</u> your driver's license?", a: "얻다/획득하다", d: ["유지하다", "기억하다", "포함하다"] },
+        { q: "He couldn't <u>retain</u> his prestige because of the scandal.", a: "유지하다/보유하다", d: ["기억하다", "얻다", "대신하다"] },
+        { q: "Gained knowledge is <u>retained</u> in simplified forms.", a: "기억하다/간직하다", d: ["유지하다", "지속하다", "얻다"] },
+        { q: "I want to know how to <u>sustain</u> my students' interest.", a: "유지하다/지속시키다", d: ["입다(부상)", "대체하다", "구성하다"] },
+        { q: "He <u>sustained</u> serious injuries in the accident.", a: "(부상 등을) 입다/겪다", d: ["지속시키다", "기억하다", "즐겁게 하다"] },
+        { q: "She'll be satisfied with the <u>contents</u> of the box.", a: "내용물", d: ["만족하는", "대륙", "연구소"] },
+        { q: "Do you think she'll be <u>content</u> with your gift?", a: "만족하는", d: ["내용물", "안정된", "꾸준한"] },
+        { q: "Asia is larger than any other <u>continent</u> in the world.", a: "대륙", d: ["목적지", "제도", "연구소"] },
+        { q: "The rain <u>continued</u> all through the night.", a: "지속하다/계속되다", d: ["중단하다", "대체하다", "구성하다"] }
+    ],
+    14: [
+        { q: "The subway was so crowded that I could hardly <u>move</u>.", a: "움직이다", d: ["감동시키다", "승진시키다", "보존하다"] },
+        { q: "The audience was <u>moved</u> to tears.", a: "감동시키다", d: ["움직이다", "예상하다", "관찰하다"] },
+        { q: "Police don't know the <u>motive</u> for the crime.", a: "동기", d: ["움직임", "감정", "전망"] },
+        { q: "The <u>motion</u> of the boat made Nate feel dizzy.", a: "움직임/동작", d: ["동기", "순간", "측면"] },
+        { q: "I focus on capturing human <u>emotions</u> through facial expressions.", a: "감정", d: ["동기", "움직임", "미덕"] },
+        { q: "The activity <u>promoted</u> team spirit among the students.", a: "증진시키다/장려하다", d: ["승진시키다", "보존하다", "검사하다"] },
+        { q: "Susan was <u>promoted</u> to supervisor.", a: "승진시키다", d: ["증진시키다", "예약하다", "의심하다"] },
+        { q: "She grew up in a <u>remote</u> area with no Internet access.", a: "외딴/먼", d: ["희박한", "원격의", "구체적인"] },
+        { q: "His idea has a <u>remote</u> link to the topic.", a: "(관계가) 희박한/거의 없는", d: ["외딴", "원격의", "자세한"] },
+        { q: "A <u>remote</u> control.", a: "원격의", d: ["외딴", "희박한", "이동식의"] },
+        { q: "Inspiration doesn't have to come from a special <u>moment</u>.", a: "순간/찰나", d: ["동기", "양상", "종"] },
+        { q: "The <u>mobile</u> clinic visits rural areas weekly.", a: "이동식의/유동적인", d: ["원격의", "외딴", "특별한"] },
+        { q: "We must <u>conserve</u> energy and use it more efficiently.", a: "보존하다/보호하다", d: ["예약하다", "준수하다", "검사하다"] },
+        { q: "They <u>deserve</u> to know the truth.", a: "~할 가치가 있다/~할 만하다", d: ["보존하다", "예약하다", "존경하다"] },
+        { q: "The purpose is to <u>preserve</u> our cultural heritage.", a: "보존하다/유지하다", d: ["보호하다", "예약하다", "관찰하다"] },
+        { q: "We <u>reserved</u> a table by the window.", a: "예약하다", d: ["보존하다", "비축하다", "준수하다"] },
+        { q: "Foreign exchange <u>reserves</u>.", a: "비축(물)/보유고", d: ["예약", "구경거리", "전망"] },
+        { q: "After <u>observing</u> the behavior of the ants carefully...", a: "관찰하다/준수하다", d: ["예상하다", "의심하다", "보존하다"] },
+        { q: "Jake put on his spectacles to view the strange <u>spectacle</u>.", a: "구경거리/광경", d: ["전망", "측면", "순간"] },
+        { q: "Try to find the positive <u>aspects</u> of any situation.", a: "면/양상/측면", d: ["전망", "구경거리", "동기"] },
+        { q: "We <u>expect</u> the train to arrive soon.", a: "예상하다/기대하다", d: ["검사하다", "의심하다", "관찰하다"] },
+        { q: "Customs officers <u>inspected</u> the luggage at the airport.", a: "검사하다/점검하다", d: ["예상하다", "의심하다", "존경하다"] },
+        { q: "The <u>prospects</u> for continued growth aren't favorable.", a: "전망/기대", d: ["측면", "구경거리", "동기"] },
+        { q: "Our main virtue is <u>respect</u> for elders.", a: "존경/공경", d: ["의심", "전망", "양상"] },
+        { q: "Who do the police <u>suspect</u> in the robbery?", a: "의심하다", d: ["예상하다", "검사하다", "존경하다"] },
+        { q: "The <u>suspect</u> is a tall, thin man called 'Big Mike'.", a: "용의자", d: ["의심", "존경", "구경거리"] },
+        { q: "Protect endangered <u>species</u>.", a: "종(種)", d: ["특별한 것", "측면", "물질"] },
+        { q: "There was no <u>specific</u> reason for the quarrel.", a: "특별한/구체적인", d: ["자세한", "각별한", "희박한"] },
+        { q: "Can you be more <u>specific</u>?", a: "자세한/구체적인", d: ["특별한", "원격의", "외딴"] },
+        { q: "<u>Special</u> care is required when transferring money.", a: "각별한/특별한", d: ["구체적인", "이동식의", "유동적인"] },
+        { q: "Pursuing his dream <u>despite</u> the difficulties.", a: "~에도 불구하고", d: ["~때문에", "그럼에도", "따라서"] }
+    ],
+        15: [
+            { q: "Friendship is an <u>abstract</u> concept.", a: "추상적인", d: ["추출하다", "개요/요약", "주의를 돌리다"] },
+            { q: "We’ve <u>abstracted</u> the data from the experiment.", a: "추출하다", d: ["추상적인", "관대한", "수축하다"] },
+            { q: "Wood expands when wet and <u>contracts</u> when dry.", a: "수축하다", d: ["계약하다", "병에 걸리다", "줄어들다"] },
+            { q: "A(n) employment <u>contract</u> was signed yesterday.", a: "계약(서)", d: ["수축", "조약", "특징"] },
+            { q: "You should <u>treat</u> people with kindness.", a: "대우하다/대하다", d: ["치료하다", "대접하다", "간주하다"] },
+            { q: "The doctor is <u>treating</u> the patient with a new drug.", a: "치료하다", d: ["대우하다", "한턱내다", "다루다"] },
+            { q: "I’ll <u>treat</u> you to dinner this time.", a: "대접하다/한턱내다", d: ["치료하다", "대우하다", "속이다"] },
+            { q: "The island vanished without a <u>trace</u>.", a: "흔적/자취", d: ["추적하다", "밝혀내다", "오솔길"] },
+            { q: "She <u>traced</u> the suspect's movements.", a: "추적하다/밝혀내다", d: ["흔적", "그리다/묘사하다", "발생시키다"] },
+            { q: "I eventually lost <u>track</u> of the rabbit.", a: "자취/흔적", d: ["경주로/트랙", "진행 과정", "철도 선로"] },
+            { q: "I <u>tracked</u> the animal through the deep woods.", a: "추적하다", d: ["흔적", "유지하다", "묘사하다"] },
+            { q: "Walking along the <u>trail</u>, we encountered a bear.", a: "오솔길/산책로", d: ["질질 끌다", "추적하다", "흔적/자국"] },
+            { q: "Her long dress was <u>trailing</u> on the floor.", a: "질질 끌리다", d: ["추적하다", "산책로", "흔적을 남기다"] },
+            { q: "Smiling can <u>portray</u> confidence and warmth.", a: "표현하다/묘사하다", d: ["추출하다", "그리다", "발생시키다"] },
+            { q: "The project <u>generated</u> high profits.", a: "창출하다/발생시키다", d: ["유지하다", "포함하다", "재생하다"] },
+            { q: "It is <u>general</u> knowledge that the earth is round.", a: "일반적인/보편적인", d: ["전반적인/전체적인", "장군", "관대한"] },
+            { q: "My <u>general</u> impression of him was good.", a: "전반적인/전체적인", d: ["일반적인/보편적인", "너그러운", "진짜의"] },
+            { q: "Selection should be based on aptitude, not <u>gender</u>.", a: "성별", d: ["유전자", "천재성", "종류"] },
+            { q: "Your eye color comes from your <u>genes</u>.", a: "유전자", d: ["성별", "천재성", "특성"] },
+            { q: "<u>Genetic</u> engineering can cure some fatal diseases.", a: "유전(학)의", d: ["관대한", "일반적인", "진짜의"] },
+            { q: "<u>Genius</u> displays itself even in childhood.", a: "천재성/천재", d: ["성별", "유전자", "특성"] },
+            { q: "Max awoke to the <u>gentle</u> sunlight.", a: "부드러운/온화한", d: ["진짜의", "관대한", "유전의"] },
+            { q: "The collector confirmed the vase was <u>genuine</u>.", a: "진짜의/진실된", d: ["부드러운", "추상적인", "보편적인"] },
+            { q: "The disease is <u>congenital</u> but treatable.", a: "선천적인", d: ["임신한", "타고난", "후천적인"] },
+            { q: "He is a <u>congenital</u> liar.", a: "타고난/지독한", d: ["선천적인(질병)", "일반적인", "너그러운"] },
+            { q: "The <u>pregnant</u> woman sat in the priority seat.", a: "임신한", d: ["의미심장한", "선천적인", "진실된"] },
+            { q: "There are personality <u>traits</u> associated with leaders.", a: "특성/특징", d: ["흔적", "조약", "오솔길"] },
+            { q: "The troops had to <u>retreat</u> to a safer position.", a: "후퇴하다/물러나다", d: ["전진하다", "철수시키다", "추출하다"] },
+            { q: "This <u>treaty</u> aims to promote international trade.", a: "조약/협정", d: ["계약", "한턱내기", "특징"] },
+            { q: "Delete the apps that <u>distract</u> you.", a: "주의를 흐트러뜨리다", d: ["추출하다", "끌어들이다", "수축시키다"] },
+            { q: "Small companies can’t <u>attract</u> big investors.", a: "끌어들이다/매혹하다", d: ["추출하다", "주의를 돌리다", "후퇴하다"] },
+            { q: "Oil is <u>extracted</u> from deep underground.", a: "뽑아내다/추출하다", d: ["수축시키다", "계약하다", "묘사하다"] }
+        ]
+    };
 
+    let selectedDay = 0;
+    let currentIdx = 0;
+    let score = 0;
+    let questions = [];
+    let mistakes = [];
+
+    function prepareGame(day) {
+        if (!allData[day] || allData[day].length === 0) {
+            alert("아직 데이터가 입력되지 않은 DAY입니다!");
+            return;
+        }
+        selectedDay = day;
+        document.getElementById('selected-msg').innerText = `DAY ${day} 선택 완료!`;
+        document.getElementById('start-go-btn').classList.remove('hidden');
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        questions = [...allData[selectedDay]].sort(() => Math.random() - 0.5);
+        mistakes = [];
+        currentIdx = 0;
+        score = 0;
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (currentIdx >= questions.length) {
+            showResult();
+            return;
+        }
+        const qData = questions[currentIdx];
+        document.getElementById('count-display').innerText = `DAY ${selectedDay} | 문제: ${currentIdx + 1} / ${questions.length}`;
+        document.getElementById('score-display').innerText = `현재 점수: ${score}`;
+        document.getElementById('question').innerHTML = qData.q;
+        document.getElementById('progress').style.width = `${((currentIdx) / questions.length) * 100}%`;
+
+        let options = [qData.a, ...qData.d].sort(() => Math.random() - 0.5);
+        const buttons = document.querySelectorAll('.options button');
+        buttons.forEach((btn, idx) => {
+            btn.innerText = options[idx];
+            btn.className = '';
+            btn.disabled = false;
+        });
+    }
+
+    function checkAnswer(idx) {
+        const buttons = document.querySelectorAll('.options button');
+        const selected = buttons[idx].innerText;
+        const correct = questions[currentIdx].a;
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selected === correct) {
+            buttons[idx].classList.add('correct');
+            score += 100;
+        } else {
+            buttons[idx].classList.add('wrong');
+            mistakes.push({ q: questions[currentIdx].q, y: selected, c: correct });
+            buttons.forEach(btn => { if (btn.innerText === correct) btn.classList.add('correct'); });
+        }
+        currentIdx++;
+        setTimeout(showQuestion, 1000);
+    }
+
+    function showResult() {
+        const resultScreen = document.getElementById('result-screen');
+        const totalScore = questions.length * 100;
+        const passScore = totalScore * 0.8;
+        
+        resultScreen.classList.remove('hidden');
+        document.getElementById('final-score-text').innerText = `점수: ${score} / ${totalScore}`;
+        
+        const reviewList = document.getElementById('review-list');
+        reviewList.innerHTML = "";
+
+        if (score >= passScore) {
+            document.getElementById('result-title').innerText = "PASS! 🎉";
+            document.getElementById('result-msg').innerText = "가은아, 완벽해! 틀린 단어 다시보자!";
+            resultScreen.style.background = "#4caf50";
+        } else {
+            document.getElementById('result-title').innerText = "FAIL.. 🥊";
+            document.getElementById('result-msg').innerText = "재시험가즈아! 틀린단어 체크!";
+            resultScreen.style.background = "#f44336";
+        }
+
+        mistakes.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'review-item';
+            item.innerHTML = `<b>Q: ${m.q}</b><br><span style="color:red">선택: ${m.y}</span> | <span style="color:green">정답: ${m.c}</span>`;
+            reviewList.appendChild(item);
+        });
+        if(mistakes.length === 0) reviewList.innerHTML = "틀린 문제가 없어요! 만점입니다! 💯";
+    }
+</script>
 </body>
 </html>
